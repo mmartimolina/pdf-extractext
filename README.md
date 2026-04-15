@@ -20,3 +20,7 @@ KISS
 DRY
 YAGNI
 SOLID
+
+##integrantes
+ASTUDILLO, Ana Valentina 
+MOLINA, Martina Abril 
