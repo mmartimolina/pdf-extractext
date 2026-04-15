@@ -11,9 +11,7 @@ Nuestro enfoque es ofrecer una herramienta funcional que resuelva la captura de 
 Funcionalidades Principales 
 
 Extracción Automática: identifica y recupera el contenido textual de archivos PDF.
-
 Optimización de Tiempos: facilita la conversión de datos sin intervención manual.
-
 Preparación de Datos: entrega el texto limpio y listo para ser procesado por otros sistemas o modelos de IA.
 
 Arquitectura del Sistema 
