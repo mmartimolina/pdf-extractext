@@ -4,6 +4,8 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 # Importamos nuestros servicios (lógica de negocio)
 from app.services.pdf_service import extract_text_from_pdf
 from app.services.ai_service import summarize_text
+from app.services.checksum_service import calcular_checksum
+from app.repository.document_repository import guardar_documento, obtener_por_checksum
 
 # Creamos la aplicación principal
 app = FastAPI()
@@ -48,9 +50,28 @@ async def upload_pdf(file: UploadFile = File(...)):
     # Generar resumen 
     resumen = summarize_text(texto)
 
+    # Generar checksum
+    checksum = calcular_checksum(contenido)
+   
+    # Verificar duplicado
+    if obtener_por_checksum(checksum):
+        raise HTTPException(
+            status_code=400,
+            detail="El documento ya fue subido anteriormente"
+    )
+
+    # Guardar en base de datos
+    documento = {
+        "filename": file.filename,
+        "texto": texto,
+        "checksum": checksum
+    }
+
+    guardar_documento(documento)
     # Devolver respuesta    
     return {
         "filename": file.filename,          
         "texto_extraido": texto[:500],      
-        "resumen": resumen                  
+        "resumen": resumen,
+        "checksum": checksum
     }
