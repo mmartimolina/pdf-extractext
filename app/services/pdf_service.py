@@ -1,8 +1,10 @@
 from pdfminer.high_level import extract_text
+import io
 
-def extract_text_from_pdf(file_path: str) -> str:
+def extract_text_from_pdf(file_bytes: bytes) -> str:
     try:
-        text = extract_text(file_path)
+        with io.BytesIO(file_bytes) as pdf_file:
+                text = extract_text(pdf_file)
         return text
     except Exception as e:
         raise Exception(f"Error al procesar PDF: {str(e)}")
