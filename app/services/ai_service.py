@@ -1,14 +1,19 @@
 import requests
+import os
+from dotenv import load_dotenv
 
-# 🔑 IMPORTANTE: acá va tu API KEY
-API_KEY = "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"
+# Cargar variables del archivo .env
+load_dotenv()
+
+# Obtener API KEY desde entorno
+API_KEY = os.getenv("API_KEY")
 
 API_URL = "https://integrate.api.nvidia.com/v1/chat/completions"
 
 
 def generar_prompt_resumen(texto: str) -> str:
     return f"""
-Resumí el siguiente texto de forma clara y simple.No dejes frases incompletas.Maximo 20 lineas:
+Resumí el siguiente texto de forma clara y simple. No dejes frases incompletas. Máximo 20 líneas:
 
 {texto}
 """
