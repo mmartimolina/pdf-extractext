@@ -13,7 +13,7 @@ BASE_DIR = os.path.dirname(__file__)
 def test_root():
     response = client.get("/")
     assert response.status_code == 200
-
+    assert response.json() == {"mensaje": "Hola, tu API funciona correctamente"}
 
 def test_listar_documentos():
     response = client.get("/documentos")
@@ -26,7 +26,7 @@ def test_listar_documentos():
 def test_upload_pdf(mock_summary):
     mock_summary.return_value = "Resumen de prueba"
 
-    # 🔥 limpiar base antes del test
+    #  limpiar base antes del test
     collection.delete_many({})
 
     file_path = os.path.join(BASE_DIR, "sample.pdf")

@@ -1,11 +1,13 @@
 # Importamos las herramientas necesarias de FastAPI
 from fastapi import FastAPI, UploadFile, File, HTTPException
-
+from typing import List
 # Importamos nuestros servicios (lógica de negocio)
 from app.services.pdf_service import extract_text_from_pdf
 from app.services import ai_service
 from app.services.checksum_service import calcular_checksum
 from app.models.document_model import UpdateDocumento
+from app.models.document_model import DocumentoResponse
+
 
 # Importamos el repository (CRUD completo)
 from app.repository.document_repository import (
@@ -71,6 +73,7 @@ async def upload_pdf(file: UploadFile = File(...)):
     documento = {
         "filename": file.filename,
         "texto": texto,
+        "resumen": resumen,
         "checksum": checksum
     }
 
@@ -94,10 +97,16 @@ def listar_documentos():
 
     return {
         "total": len(documentos),
-        "documentos": documentos
+        "documentos": [
+            {
+                "filename": doc["filename"],
+                "texto": doc["texto"][:200],
+                "resumen": doc.get("resumen"),
+                "checksum": doc["checksum"]
+            }
+            for doc in documentos
+        ]
     }
-
-
 # =========================
 # UPDATE → actualizar
 # =========================
@@ -148,20 +157,26 @@ def eliminar_doc(checksum: str):
     }
 @app.get("/documentos/{checksum}")
 def obtener_doc(checksum: str):
-    """
-    Obtiene un documento específico a partir de su checksum.
-    """
 
     doc = obtener_por_checksum(checksum)
 
-    # Validación de existencia
     if not doc:
         raise HTTPException(
             status_code=404,
             detail="Documento no encontrado"
         )
 
-    # Conversión necesaria para que Mongo sea serializable en JSON
-    doc["_id"] = str(doc["_id"])
-
-    return doc
+    return {
+        "filename": doc["filename"],
+        "texto": doc["texto"][:500], 
+        "resumen":doc.get("resumen"), 
+        "checksum": doc["checksum"]
+    }
+@app.get("/health")
+def health():
+    try:
+        from app.repository.document_repository import collection
+        collection.find_one()
+        return {"status": "ok", "db": "connected"}
+    except Exception:
+        return {"status": "error", "db": "disconnected"}

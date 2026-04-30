@@ -1,8 +1,11 @@
+import os
 from pymongo import MongoClient
 from bson import ObjectId
+from pymongo.errors import DuplicateKeyError
 
-# Conexión a MongoDB local
-client = MongoClient("mongodb://localhost:27017")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/pdf_db")
+
+client = MongoClient(MONGO_URI)
 
 # Base de datos
 db = client["pdf_db"]
@@ -12,9 +15,11 @@ collection = db["documents"]
 
 
 # CREATE
-def guardar_documento(documento: dict):
-    return collection.insert_one(documento)
-
+def guardar_documento(documento):
+    try:
+        return collection.insert_one(documento)
+    except DuplicateKeyError:
+        return None
 
 # READ (por checksum)
 def obtener_por_checksum(checksum: str):
