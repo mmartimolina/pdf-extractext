@@ -1,3 +1,5 @@
+# Servicio responsable de la extracción de texto desde PDFs
+
 from fastapi import HTTPException
 from pdfminer.high_level import extract_text
 import io

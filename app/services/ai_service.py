@@ -1,3 +1,5 @@
+# Servicio encargado de la integración con IA externa (NVIDIA API)
+
 import requests
 import os
 from dotenv import load_dotenv

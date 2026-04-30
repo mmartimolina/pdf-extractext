@@ -1,3 +1,7 @@
+# Capa de acceso a datos (MongoDB)
+# Implementa operaciones CRUD desacopladas del resto de la aplicación
+
+
 import os
 from pymongo import MongoClient
 from bson import ObjectId

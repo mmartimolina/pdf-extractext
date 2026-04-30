@@ -1,13 +1,15 @@
-# Importamos las herramientas necesarias de FastAPI
+# FastAPI se utiliza como framework para exponer la API REST
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from typing import List
-# Importamos nuestros servicios (lógica de negocio)
+
+# Servicios: encapsulan la lógica de negocio
 from app.services.pdf_service import extract_text_from_pdf
 from app.services import ai_service
 from app.services.checksum_service import calcular_checksum
+
+# Modelos: validación y tipado de datos (Pydantic)
 from app.models.document_model import UpdateDocumento
 from app.models.document_model import DocumentoResponse
-
 
 # Importamos el repository (CRUD completo)
 from app.repository.document_repository import (
@@ -27,6 +29,10 @@ app = FastAPI()
 def read_root():
     return {"mensaje": "Hola, tu API funciona correctamente"}
 
+
+
+
+# CREATE → Subir PDF
 
 # Endpoint para subir un archivo PDF
 @app.post("/upload-pdf")
@@ -88,9 +94,9 @@ async def upload_pdf(file: UploadFile = File(...)):
     }
 
 
-# =========================
+
 # READ → obtener todos
-# =========================
+
 @app.get("/documentos")
 def listar_documentos():
     documentos = obtener_todos()
@@ -107,9 +113,8 @@ def listar_documentos():
             for doc in documentos
         ]
     }
-# =========================
+
 # UPDATE → actualizar
-# =========================
 @app.put("/documentos/{checksum}")
 def actualizar_doc(checksum: str, data: UpdateDocumento):
     """
@@ -136,9 +141,9 @@ def actualizar_doc(checksum: str, data: UpdateDocumento):
     }
 
 
-# =========================
+
 # DELETE → eliminar
-# =========================
+
 @app.delete("/documentos/{checksum}")
 def eliminar_doc(checksum: str):
 
@@ -172,6 +177,8 @@ def obtener_doc(checksum: str):
         "resumen":doc.get("resumen"), 
         "checksum": doc["checksum"]
     }
+
+# HEALTH CHECK (opcional, para monitoreo)
 @app.get("/health")
 def health():
     try:

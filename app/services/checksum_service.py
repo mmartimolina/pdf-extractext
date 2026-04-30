@@ -1,3 +1,5 @@
+# Servicio encargado de generar un identificador único del archivo
+
 import hashlib
 
 def calcular_checksum(file_bytes: bytes) -> str:
