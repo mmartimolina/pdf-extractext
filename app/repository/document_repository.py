@@ -7,6 +7,9 @@ from pymongo import MongoClient
 from bson import ObjectId
 from pymongo.errors import DuplicateKeyError
 from datetime import datetime
+from dotenv import load_dotenv
+load_dotenv()
+
 
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/pdf_db")
 
