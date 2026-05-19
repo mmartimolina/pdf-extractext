@@ -144,3 +144,8 @@ pytest -v
 * Dockerización completa del sistema
 * Tests automatizados
 ----
+## Diagramas UML
+
+Los diagramas del sistema se encuentran en:
+
+docs/diagrams/
