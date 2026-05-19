@@ -1,0 +1,30 @@
+@startuml
+
+title Secuencia - Subida de PDF
+
+actor Usuario
+
+participant FastAPI
+participant PDFService
+participant AIService
+participant Repository
+database MongoDB
+
+Usuario -> FastAPI : POST /upload-pdf
+
+FastAPI -> PDFService : extract_text(pdf)
+PDFService --> FastAPI : texto extraído
+
+FastAPI -> AIService : generate_summary(texto)
+AIService --> FastAPI : resumen generado
+
+FastAPI -> Repository : guardar_documento()
+
+Repository -> MongoDB : insertOne()
+
+MongoDB --> Repository : OK
+Repository --> FastAPI : documento guardado
+
+FastAPI --> Usuario : Response 200
+
+@enduml

@@ -1,0 +1,37 @@
+@startuml
+
+title Diagrama de Clases - PDF Extractext
+
+class FastAPIController {
+    +upload_pdf()
+    +listar_documentos()
+    +obtener_documento()
+    +actualizar_documento()
+    +eliminar_documento()
+}
+
+class PDFService {
+    +extract_text()
+}
+
+class AIService {
+    +generate_summary()
+}
+
+class DocumentRepository {
+    +guardar_documento()
+    +obtener_por_checksum()
+    +obtener_todos()
+    +actualizar_documento()
+    +eliminar_documento()
+}
+
+class MongoDB
+
+FastAPIController --> PDFService
+FastAPIController --> AIService
+FastAPIController --> DocumentRepository
+
+DocumentRepository --> MongoDB
+
+@enduml
