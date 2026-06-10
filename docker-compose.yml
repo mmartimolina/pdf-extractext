@@ -1,25 +1,58 @@
-
-
 services:
+
   api:
+    # Construcción de la imagen
     build: .
+
+    # Nombre del contenedor
     container_name: pdf_api
+
+    # Reinicio automático
+    restart: unless-stopped
+
+    # Puerto FastAPI
     ports:
       - "8000:8000"
+
+    # Variables de entorno
     env_file:
       - .env
+
+    environment:
+      TZ: America/Argentina/Mendoza
+
+    # Dependencia de MongoDB
     depends_on:
       - mongo
-    volumes:
-      - .:/app
 
   mongo:
+    # Imagen oficial de MongoDB
     image: mongo:7
+
+    # Nombre del contenedor
     container_name: mongo_db
+
+    # Reinicio automático
+    restart: unless-stopped
+
+    # Puerto MongoDB
     ports:
       - "27017:27017"
+
+    environment:
+      TZ: America/Argentina/Mendoza
+
+    # Persistencia de datos
     volumes:
       - mongo_data:/data/db
 
+    # Verificación de estado del servicio
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# Volumen administrado por Docker
 volumes:
   mongo_data:

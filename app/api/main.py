@@ -1,6 +1,7 @@
 # FastAPI se utiliza como framework para exponer la API REST
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from typing import List
+import logging
 
 # Servicios: encapsulan la lógica de negocio
 from app.services.pdf_service import extract_text_from_pdf
@@ -20,21 +21,30 @@ from app.repository.document_repository import (
     eliminar_documento
 )
 
+# Configuración de logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+logger = logging.getLogger(__name__)
+
 # Creamos la aplicación principal
 app = FastAPI()
 
 
-# Endpoint raíz (opcional, para probar que la API funciona)
+# Endpoint raíz
 @app.get("/")
 def read_root():
-    return {"mensaje": "Hola, tu API funciona correctamente"}
+    logger.info("Endpoint raíz consultado")
 
-
+    return {
+        "mensaje": "Hola, tu API funciona correctamente"
+    }
 
 
 # CREATE → Subir PDF
 
-# Endpoint para subir un archivo PDF
 @app.post("/upload-pdf")
 async def upload_pdf(file: UploadFile = File(...)):
     """
@@ -42,8 +52,14 @@ async def upload_pdf(file: UploadFile = File(...)):
     extrae el texto y devuelve un resumen.
     """
 
+    logger.info(f"PDF recibido: {file.filename}")
+
     # Validar que el archivo sea un PDF
     if file.content_type != "application/pdf":
+        logger.warning(
+            f"Archivo rechazado por formato inválido: {file.filename}"
+        )
+
         raise HTTPException(
             status_code=400,
             detail="El archivo debe ser un PDF"
@@ -54,6 +70,11 @@ async def upload_pdf(file: UploadFile = File(...)):
 
     # Validar tamaño (5MB máximo)
     if len(contenido) > 5 * 1024 * 1024:
+
+        logger.warning(
+            f"Archivo demasiado grande: {file.filename}"
+        )
+
         raise HTTPException(
             status_code=400,
             detail="El archivo es demasiado grande (máx 5MB)"
@@ -70,6 +91,11 @@ async def upload_pdf(file: UploadFile = File(...)):
 
     # Verificar duplicado
     if obtener_por_checksum(checksum):
+
+        logger.warning(
+            f"Documento duplicado detectado: {file.filename}"
+        )
+
         raise HTTPException(
             status_code=400,
             detail="El documento ya fue subido anteriormente"
@@ -85,6 +111,10 @@ async def upload_pdf(file: UploadFile = File(...)):
 
     guardar_documento(documento)
 
+    logger.info(
+        f"Documento almacenado correctamente: {checksum}"
+    )
+
     # Devolver respuesta
     return {
         "filename": file.filename,
@@ -94,11 +124,13 @@ async def upload_pdf(file: UploadFile = File(...)):
     }
 
 
-
 # READ → obtener todos
 
 @app.get("/documentos")
 def listar_documentos():
+
+    logger.info("Consulta de listado de documentos")
+
     documentos = obtener_todos()
 
     return {
@@ -114,12 +146,13 @@ def listar_documentos():
         ]
     }
 
+
 # UPDATE → actualizar
+
 @app.put("/documentos/{checksum}")
 def actualizar_doc(checksum: str, data: UpdateDocumento):
     """
     Actualiza un documento existente identificado por su checksum.
-    Se utiliza un modelo Pydantic para validar y tipar los datos de entrada.
     """
 
     doc_actualizado = actualizar_documento(
@@ -128,18 +161,25 @@ def actualizar_doc(checksum: str, data: UpdateDocumento):
         data.texto
     )
 
-    # Si no se encontró el documento, se devuelve error 404
     if not doc_actualizado:
+
+        logger.warning(
+            f"Intento de actualización sobre documento inexistente: {checksum}"
+        )
+
         raise HTTPException(
             status_code=404,
             detail="Documento no encontrado"
         )
 
+    logger.info(
+        f"Documento actualizado: {checksum}"
+    )
+
     return {
         "mensaje": "Documento actualizado",
         "documento": doc_actualizado
     }
-
 
 
 # DELETE → eliminar
@@ -150,6 +190,11 @@ def eliminar_doc(checksum: str):
     doc = obtener_por_checksum(checksum)
 
     if not doc:
+
+        logger.warning(
+            f"Intento de eliminación sobre documento inexistente: {checksum}"
+        )
+
         raise HTTPException(
             status_code=404,
             detail="Documento no encontrado"
@@ -157,33 +202,72 @@ def eliminar_doc(checksum: str):
 
     eliminar_documento(checksum)
 
+    logger.info(
+        f"Documento eliminado: {checksum}"
+    )
+
     return {
         "mensaje": "Documento eliminado correctamente"
     }
+
+
+# READ → obtener uno
+
 @app.get("/documentos/{checksum}")
 def obtener_doc(checksum: str):
 
     doc = obtener_por_checksum(checksum)
 
     if not doc:
+
+        logger.warning(
+            f"Documento no encontrado: {checksum}"
+        )
+
         raise HTTPException(
             status_code=404,
             detail="Documento no encontrado"
         )
 
+    logger.info(
+        f"Consulta de documento: {checksum}"
+    )
+
     return {
         "filename": doc["filename"],
-        "texto": doc["texto"][:500], 
-        "resumen":doc.get("resumen"), 
+        "texto": doc["texto"][:500],
+        "resumen": doc.get("resumen"),
         "checksum": doc["checksum"]
     }
 
-# HEALTH CHECK (opcional, para monitoreo)
+
+# HEALTH CHECK
+
 @app.get("/health")
 def health():
+
+    logger.info("Health check ejecutado")
+
     try:
         from app.repository.document_repository import collection
+
         collection.find_one()
-        return {"status": "ok", "db": "connected"}
-    except Exception:
-        return {"status": "error", "db": "disconnected"}
+
+        return {
+            "application": "OK,Funciona correctamente",
+            "database": "OK,Conexión exitosa",
+            "timezone": "America/Argentina/Mendoza"
+        }
+
+    except Exception as e:
+
+        logger.error(
+            f"Error en health check: {str(e)}"
+        )
+
+        return {
+            "application": "OK,Funciona correctamente",
+            "database": "ERROR",
+            "timezone": "America/Argentina/Mendoza",
+            "detail": str(e)
+        }

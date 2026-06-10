@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-from pydantic import BaseModel
+
 
 class Documento(BaseModel):
     # Representa la estructura completa de un documento en el sistema

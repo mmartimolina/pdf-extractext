@@ -1,4 +1,4 @@
-@startuml
+@startuml sequence_diagram
 
 title Secuencia - Subida de PDF
 
