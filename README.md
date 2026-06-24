@@ -32,7 +32,7 @@ Este proyecto fue diseñado para automatizar la extracción de texto desde docum
 
 ---
 
-##  Alumnas
+##  Propietarias
 
 Martina Abril Molina
 Ana Valentina Astudillo
