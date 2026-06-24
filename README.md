@@ -135,7 +135,7 @@ pytest -v
 
 ---
 
-## 📊Características destacadas
+## Características destacadas
 
 * Validación de archivos (tipo y tamaño)
 * Generación de checksum para evitar duplicados
