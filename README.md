@@ -1,158 +1,279 @@
-# PDF Extract & Summarize API
+# 📄 PDF ExtractExt API
 
-API desarrollada con FastAPI que permite:
+## 📖 Descripción
 
-* Subir archivos PDF
-* Extraer su contenido
-* Generar un resumen usando IA
-* Almacenar documentos en MongoDB
-* Gestionar documentos (CRUD completo)
+**PDF ExtractExt** es una API REST desarrollada con **FastAPI** que permite procesar documentos PDF de forma automática.
 
----
+La aplicación recibe archivos PDF, extrae su contenido textual, genera automáticamente un resumen mediante un  servicio de Inteligencia Artificial y almacena la información en una base de datos MongoDB para su posterior consulta mediante operaciones CRUD.
 
-## Tecnologías utilizadas
+El proyecto fue desarrollado aplicando buenas prácticas de desarrollo, contenedores Docker, pruebas automatizadas y una arquitectura organizada por capas, facilitando su mantenimiento y escalabilidad.
 
-* Python 3.13
-* FastAPI
-* MongoDB
-* pdfminer
-* NVIDIA AI (Llama 3.1)
-* Pytest (testing)
+## ✨ Características
 
----
+| Funcionalidad | Descripción | Estado |
+|--------------|-------------|:------:|
+| 📄 Extracción de texto | Obtiene el contenido textual de archivos PDF | ✅ |
+| 🤖 Resumen con IA | Genera un resumen automático del contenido extraído | ✅ |
+| 🗄️ Persistencia | Almacena documentos y resúmenes en MongoDB | ✅ |
+| 🔄 Operaciones CRUD | Permite crear, consultar, actualizar y eliminar documentos | ✅ |
+| 🔐 Validaciones | Verifica tipo de archivo, tamaño y documentos duplicados | ✅ |
+| 🧾 Checksum | Genera un identificador único para evitar duplicados | ✅ |
+| 🗑️ Soft Delete | Elimina documentos de forma lógica preservando la información | ✅ |
+| 🐳 Docker | Despliegue mediante contenedores Docker y Docker Compose | ✅ |
+| 📖 Swagger UI | Documentación interactiva de la API | ✅ |
+| 🧪 Testing | Pruebas automatizadas con Pytest | ✅ |
 
-## Arquitectura
+## 🛠 Tecnologías utilizadas
 
-El proyecto sigue una estructura por capas:
+| Tecnología | Uso dentro del proyecto |
+|------------|-------------------------|
+| Python | Lenguaje principal de desarrollo |
+| FastAPI | Desarrollo de la API REST |
+| MongoDB | Base de datos NoSQL para persistencia |
+| Docker | Contenerización de la aplicación |
+| Docker Compose | Orquestación de servicios |
+| pdfminer.six | Extracción de texto desde archivos PDF |
+| Requests | Comunicación con el servicio de IA |
+| Pytest | Pruebas automatizadas |
+| Git & GitHub | Control de versiones |
 
-* **api/** → endpoints (interfaz con el cliente)
-* **services/** → lógica de negocio
-* **repository/** → acceso a datos (MongoDB)
-* **models/** → validación y tipado (Pydantic)
-* **test/** → pruebas automatizadas
+## 🏛 Arquitectura
 
----
+El proyecto sigue una arquitectura en capas que permite separar responsabilidades y facilitar el mantenimiento, escalabilidad y la reutilización del código.
 
-##  Instalación
+```text
+                Cliente
+                   │
+                   ▼
+            FastAPI (API REST)
+                   │
+                   ▼
+          Servicios de Negocio
+                   │
+                   ▼
+       Repositorio (MongoDB)
+                   │
+                   ▼
+              Base de Datos
+```
 
-1. Clonar el repositorio:
+### Responsabilidades de cada capa
+
+| Capa | Responsabilidad |
+|------|-----------------|
+| API | Recibe las solicitudes HTTP y devuelve las respuestas al cliente. |
+| Servicios | Contiene la lógica de negocio, procesamiento de PDFs y generación de resúmenes. |
+| Repositorio | Gestiona el acceso a la base de datos MongoDB. |
+| Base de datos | Almacena los documentos, resúmenes y metadatos. |
+
+## 📂 Estructura del proyecto
+
+```text
+pdf-extractext/
+│
+├── app/
+│   ├── api/
+│   ├── models/
+│   ├── repository/
+│   ├── services/
+│   └── main.py
+│
+├── test/
+│
+├── documentos/
+│
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+├── README.md
+└── .env.example
+```
+
+## 🔄 Flujo del sistema
+
+El procesamiento de un documento sigue el siguiente flujo:
+
+```text
+Usuario
+
+   │
+
+   ▼
+
+Sube un archivo PDF
+
+   │
+
+   ▼
+
+Validación del archivo
+
+   │
+
+   ▼
+
+Extracción del texto
+
+   │
+
+   ▼
+
+Generación del resumen mediante IA
+
+   │
+
+   ▼
+
+Cálculo del checksum
+
+   │
+
+   ▼
+
+Almacenamiento en MongoDB
+
+   │
+
+   ▼
+
+Respuesta JSON al cliente
+```
+
+## ⚙ Instalación
+
+### Requisitos previos
+
+Antes de ejecutar el proyecto es necesario contar con:
+
+- Git
+- Docker y Docker Compose
+- Python 3.13 o superior (solo para ejecución local)
+
+> **Nota:** También es posible ejecutar la aplicación localmente utilizando Python y las dependencias del proyecto, aunque se recomienda Docker para simplificar la configuración.
+
+### 1. Clonar el repositorio
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/mmartimolina/pdf-extractext.git
 cd pdf-extractext
 ```
 
-2. Crear entorno virtual:
+### 2. Configurar las variables de entorno
 
-```bash
-python -m venv venv
-venv\Scripts\activate
-```
+Crear un archivo `.env` en la raíz del proyecto utilizando como referencia el archivo `.env.example`.
 
-3. Instalar dependencias:
-
-```bash
-pip install -r requirements.txt
-```
-
-4. Crear archivo `.env` en la raíz:
+Ejemplo:
 
 ```env
-API_KEY=tu_api_key_aqui
+API_KEY=tu_api_key
+MONGO_URI=mongodb://mongo:27017/pdf_db
 ```
 
-5. Ejecutar MongoDB (local)
-
----
-
-##  Ejecución
+### 3. Ejecutar con Docker
 
 ```bash
-uvicorn app.api.main:app --reload
+docker compose up --build
 ```
 
-Acceder a la documentación automática:
-👉 http://127.0.0.1:8000/docs
+### 4. Acceder a la documentación
 
----
+Una vez iniciado el proyecto:
 
-##  Endpoints principales
-
-### Subir PDF
-
-```
-POST /upload-pdf
+```text
+http://localhost:8000/docs
 ```
 
-* Valida formato y tamaño
-* Extrae texto
-* Genera resumen
-* Evita duplicados mediante checksum
+Desde Swagger UI es posible probar todos los endpoints de forma interactiva.
 
----
+## 🌍 Variables de entorno
 
-###  Obtener todos los documentos
+| Variable | Descripción |
+|----------|-------------|
+| API_KEY | Clave utilizada para consumir el servicio de Inteligencia Artificial. |
+| MONGO_URI | Cadena de conexión a MongoDB. |
 
-```
-GET /documentos
-```
+## 🐳 Docker
 
----
+El proyecto se encuentra completamente dockerizado mediante **Docker** y **Docker Compose**, facilitando su despliegue en cualquier entorno.
 
-###  Obtener documento por checksum
+### Comandos principales
 
-```
-GET /documentos/{checksum}
-```
+```bash
+# Construir e iniciar los servicios
+docker compose up --build
 
----
+# Detener los servicios
+docker compose down
 
-###  Actualizar documento
+# Ver los logs
+docker compose logs
 
-```
-PUT /documentos/{checksum}
-```
+# Reiniciar los servicios
+docker compose restart
 
----
-
-###  Eliminar documento
-
-```
-DELETE /documentos/{checksum}
+# Detener los servicios sin eliminarlos
+docker compose stop
 ```
 
----
+## 📡 Endpoints
 
-##  Testing
+| Método | Endpoint | Descripción |
+|---------|----------|-------------|
+| POST | `/upload-pdf` | Sube un archivo PDF, extrae el texto y genera un resumen. |
+| GET | `/documentos` | Obtiene la lista de documentos almacenados. |
+| GET | `/documentos/{checksum}` | Obtiene un documento mediante su checksum. |
+| PUT | `/documentos/{checksum}` | Actualiza la información de un documento. |
+| DELETE | `/documentos/{checksum}` | Realiza un Soft Delete del documento. |
+| GET | `/health` | Verifica el estado de la API y la conexión con MongoDB. |
 
-Ejecutar:
+## 🧪 Testing
+
+El proyecto cuenta con pruebas automatizadas desarrolladas con **Pytest**, permitiendo verificar el correcto funcionamiento de la API y sus principales funcionalidades.
+
+Para ejecutar las pruebas:
 
 ```bash
 pytest -v
 ```
 
-✔ Tests rápidos
-✔ Mock de IA aplicado
-✔ Independientes de servicios externos
+## 📊 Diagramas UML
 
----
+La documentación técnica incluye diagramas UML que describen la arquitectura y el comportamiento del sistema.
 
-## Decisiones técnicas
+Se encuentran disponibles en:
 
-* Uso de **checksum (MD5)** para evitar duplicados
-* Separación de capas siguiendo principios **SOLID**
-* Uso de **Pydantic** para validación de datos
-* Mocking en tests para evitar dependencia de APIs externas
+```text
+documentos/diagramas/
+```
+Los diagramas incluyen:
 
----
+- Diagrama de clases.
+- Diagrama de secuencia.
+- Diagrama de arquitectura.
 
-##  Licencia
+## 📚 Principios aplicados
 
-MIT License
+Durante el desarrollo del proyecto se aplicaron distintos principios de ingeniería de software con el objetivo de mejorar la calidad y mantenibilidad del código.
 
----
+| Principio | Aplicación |
+|-----------|------------|
+| DRY | Se evitó la duplicación de lógica reutilizando servicios y repositorios. |
+| KISS | Se priorizó una solución simple y fácil de mantener. |
+| SOLID | Separación de responsabilidades mediante una arquitectura en capas. |
+| YAGNI | Se implementaron únicamente las funcionalidades requeridas por el proyecto. |
 
-##  Integrantes
+## 👥 Integrantes
 
-* Astudillo, Ana Valentina
-* Molina, Martina Abril
+| Integrante | Legajo |
+|------------|:------:|
+| Martina Abril Molina | 10872 |
+| Ana Valentina Astudillo |  |
+
+## 📄 Licencia
+
+
+Este proyecto fue desarrollado con fines académicos para la asignatura **Desarrollo de Software** de la **Universidad Tecnológica Nacional - Facultad Regional San Rafael (UTN FRSR)**.
+
+
+
+
