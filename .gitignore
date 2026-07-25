@@ -212,3 +212,8 @@ node_modules/
 package-lock.json
 package.json
 uploads/
+documents/
+
+# Sistema Operativo
+.DS_Store
+Thumbs.db
