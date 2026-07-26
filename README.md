@@ -187,16 +187,20 @@ http://localhost:8000/docs
 
 Desde Swagger UI es posible probar todos los endpoints de forma interactiva.
 
+
 ## 🌍 Variables de entorno
 
+| Variable | Descripción |
+|----------|-------------|
+| API_KEY | Clave utilizada para consumir el servicio de Inteligencia Artificial. |
+| MONGO_URI | Cadena de conexión a MongoDB. |
+
+Ejemplo:
+
+```env
 API_KEY=tu_api_key
-
-# Docker Compose
 MONGO_URI=mongodb://mongo:27017/pdf_db
-
-# Ejecución local
-# MONGO_URI=mongodb://localhost:27017/pdf_db
-
+```
 
 ## 🐳 Docker
 
@@ -232,6 +236,217 @@ docker compose stop
 | DELETE | `/documentos/{checksum}` | Realiza un Soft Delete del documento, marcándolo como eliminado sin borrar físicamente la información. |
 | GET | `/health` | Verifica el estado de la API y la conexión con MongoDB. |
 
+## 📌 Ejemplos de solicitudes y respuestas de endpoints
+
+A continuación se muestran ejemplos de uso de los principales endpoints disponibles en la API.
+
+---
+
+## 📄 POST `/upload-pdf`
+
+Permite subir un archivo PDF, extraer su contenido, generar un resumen mediante IA y almacenarlo en MongoDB.
+
+### Solicitud
+
+```http
+POST /upload-pdf
+Content-Type: multipart/form-data
+```
+
+Body:
+
+```text
+file: documento.pdf
+```
+
+### Respuesta exitosa `200 OK`
+
+```json
+{
+  "filename": "documento.pdf",
+  "texto_extraido": "Contenido extraído del PDF...",
+  "resumen": "Resumen generado mediante Inteligencia Artificial...",
+  "checksum": "a83f91d8c..."
+}
+```
+
+### Respuestas de error
+
+Archivo con formato incorrecto:
+
+```json
+{
+  "detail": "El archivo debe ser un PDF"
+}
+```
+
+Archivo demasiado grande:
+
+```json
+{
+  "detail": "El archivo es demasiado grande (máx 5MB)"
+}
+```
+
+Documento duplicado:
+
+```json
+{
+  "detail": "El documento ya fue subido anteriormente"
+}
+```
+
+---
+
+## 📚 GET `/documentos`
+
+Obtiene todos los documentos almacenados en la base de datos.
+
+### Solicitud
+
+```http
+GET /documentos
+```
+
+### Respuesta exitosa `200 OK`
+
+```json
+{
+  "total": 1,
+  "documentos": [
+    {
+      "filename": "documento.pdf",
+      "texto": "Contenido extraído del PDF...",
+      "resumen": "Resumen generado mediante Inteligencia Artificial...",
+      "checksum": "a83f91d8c..."
+    }
+  ]
+}
+```
+
+---
+
+## 🔎 GET `/documentos/{checksum}`
+
+Obtiene un documento específico utilizando su identificador único.
+
+### Solicitud
+
+```http
+GET /documentos/a83f91d8c
+```
+
+### Respuesta exitosa `200 OK`
+
+```json
+{
+  "filename": "documento.pdf",
+  "texto": "Contenido extraído del PDF...",
+  "resumen": "Resumen generado mediante Inteligencia Artificial...",
+  "checksum": "a83f91d8c"
+}
+```
+
+### Documento inexistente
+
+```json
+{
+  "detail": "Documento no encontrado"
+}
+```
+
+---
+
+## ✏️ PUT `/documentos/{checksum}`
+
+Actualiza la información de un documento existente.
+
+### Solicitud
+
+```http
+PUT /documentos/a83f91d8c
+Content-Type: application/json
+```
+
+Body:
+
+```json
+{
+  "filename": "nuevo_nombre.pdf",
+  "texto": "Nuevo contenido del documento"
+}
+```
+
+### Respuesta exitosa `200 OK`
+
+```json
+{
+  "mensaje": "Documento actualizado",
+  "documento": {
+    "filename": "nuevo_nombre.pdf",
+    "texto": "Nuevo contenido del documento"
+  }
+}
+```
+
+### Documento inexistente
+
+```json
+{
+  "detail": "Documento no encontrado"
+}
+```
+
+---
+
+## 🗑️ DELETE `/documentos/{checksum}`
+
+Realiza un Soft Delete del documento identificado mediante checksum.
+
+### Solicitud
+
+```http
+DELETE /documentos/a83f91d8c
+```
+
+### Respuesta exitosa `200 OK`
+
+```json
+{
+  "mensaje": "Documento eliminado correctamente"
+}
+```
+
+### Documento inexistente
+
+```json
+{
+  "detail": "Documento no encontrado"
+}
+```
+
+---
+
+## ❤️ GET `/health`
+
+Verifica el estado de la aplicación y la conexión con MongoDB.
+
+### Solicitud
+
+```http
+GET /health
+```
+
+### Respuesta exitosa `200 OK`
+
+```json
+{
+  "application": "OK,Funciona correctamente",
+  "database": "OK,Conexión exitosa",
+  "timezone": "America/Argentina/Mendoza"
+}
+```
+
 ## 🧪 Testing
 
 El proyecto cuenta con pruebas automatizadas desarrolladas con **Pytest**, permitiendo verificar el correcto funcionamiento de la API y sus principales funcionalidades.
@@ -249,10 +464,8 @@ La documentación técnica incluye diagramas UML que describen la arquitectura y
 Se encuentran disponibles en:
 
 ```text
-documentos/diagrams/
+documents/diagrams/
 ```
-Los diagramas incluyen:
-
 Los diagramas incluyen:
 
 - Diagrama de clases.
