@@ -1,6 +1,6 @@
 @startuml class_diagram
 
-title Diagrama de Clases - PDF Extractext
+title Diagrama de Clases - PDF ExtractExt
 
 class FastAPIController {
     +upload_pdf()
@@ -8,6 +8,7 @@ class FastAPIController {
     +obtener_documento()
     +actualizar_documento()
     +eliminar_documento()
+    +health_check()
 }
 
 class PDFService {
@@ -15,23 +16,34 @@ class PDFService {
 }
 
 class AIService {
-    +generate_summary()
+    +summarize_text()
+}
+
+class ChecksumService {
+    +calcular_checksum()
 }
 
 class DocumentRepository {
     +guardar_documento()
-    +obtener_por_checksum()
     +obtener_todos()
+    +obtener_por_checksum()
     +actualizar_documento()
     +eliminar_documento()
 }
 
-class MongoDB
+class Documento {
+    -filename
+    -texto
+    -resumen
+    -checksum
+    -created_at
+    -updated_at
+}
 
 FastAPIController --> PDFService
 FastAPIController --> AIService
+FastAPIController --> ChecksumService
 FastAPIController --> DocumentRepository
-
-DocumentRepository --> MongoDB
+DocumentRepository --> Documento
 
 @enduml

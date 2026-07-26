@@ -6,6 +6,7 @@ actor Usuario
 
 participant FastAPI
 participant PDFService
+participant ChecksumService
 participant AIService
 participant Repository
 database MongoDB
@@ -15,7 +16,10 @@ Usuario -> FastAPI : POST /upload-pdf
 FastAPI -> PDFService : extract_text(pdf)
 PDFService --> FastAPI : texto extraído
 
-FastAPI -> AIService : generate_summary(texto)
+FastAPI -> ChecksumService : calcular_checksum(pdf)
+ChecksumService --> FastAPI : checksum
+
+FastAPI -> AIService : summarize_text(texto)
 AIService --> FastAPI : resumen generado
 
 FastAPI -> Repository : guardar_documento()
@@ -23,6 +27,7 @@ FastAPI -> Repository : guardar_documento()
 Repository -> MongoDB : insertOne()
 
 MongoDB --> Repository : OK
+
 Repository --> FastAPI : documento guardado
 
 FastAPI --> Usuario : Response 200
