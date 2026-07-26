@@ -45,7 +45,7 @@ def read_root():
 
 # CREATE → Subir PDF
 
-@app.post("/upload-pdf")
+@app.post("/upload-pdf", response_model=DocumentoResponse)
 async def upload_pdf(file: UploadFile = File(...)):
     """
     Este endpoint recibe un archivo PDF, valida su formato y tamaño,
@@ -116,12 +116,12 @@ async def upload_pdf(file: UploadFile = File(...)):
     )
 
     # Devolver respuesta
-    return {
-        "filename": file.filename,
-        "texto_extraido": texto[:500],
-        "resumen": resumen,
-        "checksum": checksum
-    }
+    return DocumentoResponse(
+        filename=file.filename,
+        texto=texto[:500],
+        resumen=resumen,
+        checksum=checksum
+    )
 
 
 # READ → obtener todos
@@ -213,7 +213,10 @@ def eliminar_doc(checksum: str):
 
 # READ → obtener uno
 
-@app.get("/documentos/{checksum}")
+@app.get(
+    "/documentos/{checksum}",
+    response_model=DocumentoResponse
+)
 def obtener_doc(checksum: str):
 
     doc = obtener_por_checksum(checksum)
@@ -233,13 +236,12 @@ def obtener_doc(checksum: str):
         f"Consulta de documento: {checksum}"
     )
 
-    return {
-        "filename": doc["filename"],
-        "texto": doc["texto"][:500],
-        "resumen": doc.get("resumen"),
-        "checksum": doc["checksum"]
-    }
-
+    return DocumentoResponse(
+        filename=doc["filename"],
+        texto=doc["texto"][:500],
+        resumen=doc.get("resumen"),
+        checksum=doc["checksum"]
+    )
 
 # HEALTH CHECK
 

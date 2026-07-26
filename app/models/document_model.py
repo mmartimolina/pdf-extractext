@@ -3,7 +3,7 @@ from typing import Optional
 
 
 class Documento(BaseModel):
-    # Representa la estructura completa de un documento en el sistema
+    # Representa un documento completo almacenado en el sistema
     filename: str
     texto: str
     checksum: str
@@ -15,7 +15,9 @@ class UpdateDocumento(BaseModel):
     filename: Optional[str] = None
     texto: Optional[str] = None
 
+
 class DocumentoResponse(BaseModel):
+    # Modelo utilizado para las respuestas de la API
     filename: str
     texto: str
     resumen: str | None = None
