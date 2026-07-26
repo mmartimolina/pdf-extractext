@@ -67,20 +67,22 @@ El proyecto sigue una arquitectura en capas que permite separar responsabilidade
 | Base de datos | Almacena los documentos, resúmenes y metadatos. |
 
 ## 📂 Estructura del proyecto
-
 ```text
 pdf-extractext/
 │
 ├── app/
 │   ├── api/
+│   │   └── main.py
 │   ├── models/
 │   ├── repository/
-│   ├── services/
-│   └── main.py
+│   └── services/
+│
+├── documents/
+│   └── diagrams/
 │
 ├── test/
 │
-├── documentos/
+├── scripts/
 │
 ├── Dockerfile
 ├── docker-compose.yml
@@ -147,7 +149,7 @@ Antes de ejecutar el proyecto es necesario contar con:
 
 - Git
 - Docker y Docker Compose
-- Python 3.13 o superior (solo para ejecución local)
+- Python 3.14 (solo para ejecución local)
 
 > **Nota:** También es posible ejecutar la aplicación localmente utilizando Python y las dependencias del proyecto, aunque se recomienda Docker para simplificar la configuración.
 
@@ -187,10 +189,14 @@ Desde Swagger UI es posible probar todos los endpoints de forma interactiva.
 
 ## 🌍 Variables de entorno
 
-| Variable | Descripción |
-|----------|-------------|
-| API_KEY | Clave utilizada para consumir el servicio de Inteligencia Artificial. |
-| MONGO_URI | Cadena de conexión a MongoDB. |
+API_KEY=tu_api_key
+
+# Docker Compose
+MONGO_URI=mongodb://mongo:27017/pdf_db
+
+# Ejecución local
+# MONGO_URI=mongodb://localhost:27017/pdf_db
+
 
 ## 🐳 Docker
 
@@ -223,7 +229,7 @@ docker compose stop
 | GET | `/documentos` | Obtiene la lista de documentos almacenados. |
 | GET | `/documentos/{checksum}` | Obtiene un documento mediante su checksum. |
 | PUT | `/documentos/{checksum}` | Actualiza la información de un documento. |
-| DELETE | `/documentos/{checksum}` | Realiza un Soft Delete del documento. |
+| DELETE | `/documentos/{checksum}` | Realiza un Soft Delete del documento, marcándolo como eliminado sin borrar físicamente la información. |
 | GET | `/health` | Verifica el estado de la API y la conexión con MongoDB. |
 
 ## 🧪 Testing
@@ -243,13 +249,14 @@ La documentación técnica incluye diagramas UML que describen la arquitectura y
 Se encuentran disponibles en:
 
 ```text
-documentos/diagramas/
+documentos/diagrams/
 ```
+Los diagramas incluyen:
+
 Los diagramas incluyen:
 
 - Diagrama de clases.
 - Diagrama de secuencia.
-- Diagrama de arquitectura.
 
 ## 📚 Principios aplicados
 
